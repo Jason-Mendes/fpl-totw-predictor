@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 280 100% 8%;
+    --foreground: 0 0% 100%;
+
+    --card: 280 100% 12%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 280 100% 12%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 280 100% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 156 100% 50%;
+    --secondary-foreground: 280 100% 12%;
+
+    --muted: 280 50% 20%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 186 100% 50%;
+    --accent-foreground: 280 100% 12%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 280 50% 30%;
+    --input: 280 50% 30%;
+    --ring: 156 100% 50%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    min-height: 100vh;
+  }
+}
+
+/* Pitch styling */
+.pitch-container {
+  background: linear-gradient(
+    to bottom,
+    #1a5a2e 0%,
+    #1e6b36 25%,
+    #1a5a2e 50%,
+    #1e6b36 75%,
+    #1a5a2e 100%
+  );
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.pitch-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 40px,
+    rgba(255, 255, 255, 0.03) 40px,
+    rgba(255, 255, 255, 0.03) 80px
+  );
+  pointer-events: none;
+}
+
+/* Player card hover effect */
+.player-card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.player-card:hover {
+  transform: scale(1.05);
+}

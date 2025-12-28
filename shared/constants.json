@@ -1,0 +1,80 @@
+{
+  "$schema": "./constants.schema.json",
+  "_comment": "Single source of truth for FPL constants. Both Python and TypeScript read from this file.",
+
+  "positions": {
+    "GKP": "GKP",
+    "DEF": "DEF",
+    "MID": "MID",
+    "FWD": "FWD"
+  },
+
+  "positionElementTypeMap": {
+    "1": "GKP",
+    "2": "DEF",
+    "3": "MID",
+    "4": "FWD"
+  },
+
+  "playerStatus": {
+    "AVAILABLE": "a",
+    "DOUBTFUL": "d",
+    "INJURED": "i",
+    "NOT_AVAILABLE": "n",
+    "SUSPENDED": "s",
+    "UNAVAILABLE": "u"
+  },
+
+  "formations": [
+    "3-4-3",
+    "3-5-2",
+    "4-3-3",
+    "4-4-2",
+    "4-5-1",
+    "5-3-2",
+    "5-4-1"
+  ],
+
+  "formationConstraints": {
+    "minGkp": 1,
+    "maxGkp": 1,
+    "minDef": 3,
+    "maxDef": 5,
+    "minMid": 2,
+    "maxMid": 5,
+    "minFwd": 1,
+    "maxFwd": 3,
+    "totalPlayers": 11
+  },
+
+  "pointsSystem": {
+    "minutes1To59": 1,
+    "minutes60Plus": 2,
+    "goalGkp": 6,
+    "goalDef": 6,
+    "goalMid": 5,
+    "goalFwd": 4,
+    "assist": 3,
+    "cleanSheetGkp": 4,
+    "cleanSheetDef": 4,
+    "cleanSheetMid": 1,
+    "cleanSheetFwd": 0,
+    "goalsConcededGkp": -1,
+    "goalsConcededDef": -1,
+    "savesBonus": 1,
+    "penaltySaved": 5,
+    "penaltyMissed": -2,
+    "yellowCard": -1,
+    "redCard": -3,
+    "ownGoal": -2,
+    "maxBonus": 3
+  },
+
+  "rollingWindows": [3, 5, 8],
+
+  "minGameweeksForPrediction": 5,
+
+  "apiRateLimitSeconds": 1.0,
+
+  "fplApiBaseUrl": "https://fantasy.premierleague.com/api"
+}
