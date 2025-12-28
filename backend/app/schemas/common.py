@@ -178,8 +178,9 @@ class BacktestResultSchema(BaseModel):
     gameweek_fpl_id: int
     player_overlap: int
     points_ratio: float
-    actual_total: int
-    predicted_total: int
+    actual_total: int  # Dream team's actual points
+    predicted_total: int  # Our predicted points for our team
+    predicted_team_actual: int | None = None  # Actual points scored by our predicted players
     created_at: datetime
 
     class Config:
@@ -192,6 +193,8 @@ class BacktestSummarySchema(BaseModel):
     total_gameweeks: int
     avg_overlap: float
     avg_points_ratio: float
+    avg_predicted_team_actual: float | None = None  # Avg actual points by our predicted team
+    avg_dream_team_points: float | None = None  # Avg dream team points for comparison
     min_overlap: int
     max_overlap: int
     weeks_above_9: int

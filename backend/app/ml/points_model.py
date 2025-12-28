@@ -8,13 +8,15 @@ from typing import Any
 import numpy as np
 import pandas as pd
 from lightgbm import LGBMRegressor
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import TimeSeriesSplit, cross_val_score
 
 from app.constants import DEFAULT_MODEL_PARAMS, Position
 
 logger = logging.getLogger(__name__)
 
 # Features to use for training (excluding identifiers)
+# NOTE: now_cost removed - it caused the model to penalize expensive players
+# (high feature importance but learned inverse relationship due to class imbalance)
 FEATURE_COLUMNS = [
     "is_gkp",
     "is_def",
@@ -22,7 +24,7 @@ FEATURE_COLUMNS = [
     "is_fwd",
     "is_penalty_taker",
     "is_set_piece_taker",
-    "now_cost",
+    # "now_cost",  # Removed - caused model to favor cheap players incorrectly
     "chance_of_playing",
     # Rolling window features for window 3
     "points_mean_3",
@@ -36,6 +38,7 @@ FEATURE_COLUMNS = [
     "cs_sum_3",
     "bonus_sum_3",
     "bps_mean_3",
+    # xG features - now enabled after Understat sync
     "xg_sum_3",
     "xa_sum_3",
     "xga_sum_3",
@@ -128,24 +131,28 @@ class PointsPredictor:
             zip(available_features, self.model.feature_importances_)
         )
 
-        # Cross-validation score (adjust folds based on sample size)
+        # Cross-validation using TimeSeriesSplit to avoid data leakage
+        # Random CV mixes future data with past, which is wrong for time series
         n_samples = len(X_train)
-        if n_samples >= 5:
-            cv_folds = min(5, n_samples)
+        if n_samples >= 10:
+            # Use TimeSeriesSplit: train on past, validate on future
+            n_splits = min(5, n_samples // 2)
+            tscv = TimeSeriesSplit(n_splits=n_splits)
             cv_scores = cross_val_score(
-                self.model, X_train, y, cv=cv_folds, scoring="neg_mean_absolute_error"
+                self.model, X_train, y, cv=tscv, scoring="neg_mean_absolute_error"
             )
             cv_mae = -cv_scores.mean()
             cv_mae_std = cv_scores.std()
-        elif n_samples >= 2:
-            # Use leave-one-out style CV for very small sets
+        elif n_samples >= 4:
+            # Smaller dataset: use 2-fold time split
+            tscv = TimeSeriesSplit(n_splits=2)
             cv_scores = cross_val_score(
-                self.model, X_train, y, cv=n_samples, scoring="neg_mean_absolute_error"
+                self.model, X_train, y, cv=tscv, scoring="neg_mean_absolute_error"
             )
             cv_mae = -cv_scores.mean()
             cv_mae_std = cv_scores.std()
         else:
-            # Cannot do CV with < 2 samples
+            # Cannot do CV with < 4 samples
             logger.warning("Too few samples for cross-validation, skipping CV")
             cv_mae = 0.0
             cv_mae_std = 0.0

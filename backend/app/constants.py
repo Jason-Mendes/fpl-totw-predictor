@@ -152,13 +152,18 @@ FPL_API_RATE_LIMIT_SECONDS: float = _SHARED["apiRateLimitSeconds"]
 FPL_API_BASE_URL: str = _SHARED["fplApiBaseUrl"]
 
 # Model hyperparameters (backend-only, not shared)
+# Note: num_leaves should be <= 2^max_depth to avoid LightGBM warning
 DEFAULT_MODEL_PARAMS = {
     "lightgbm": {
-        "n_estimators": 100,
-        "max_depth": 6,
-        "learning_rate": 0.1,
-        "num_leaves": 31,
+        "n_estimators": 200,
+        "max_depth": 5,
+        "learning_rate": 0.05,
+        "num_leaves": 20,  # <= 2^5 = 32
+        "min_child_samples": 10,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
         "random_state": 42,
+        "verbosity": -1,  # Suppress warnings
     }
 }
 

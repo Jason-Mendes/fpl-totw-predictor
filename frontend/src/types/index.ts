@@ -85,6 +85,7 @@ export interface BacktestResult {
   points_ratio: number;
   actual_total: number;
   predicted_total: number;
+  predicted_team_actual: number | null;  // Actual points scored by our predicted players
   created_at: string;
 }
 
@@ -92,6 +93,8 @@ export interface BacktestSummary {
   total_gameweeks: number;
   avg_overlap: number;
   avg_points_ratio: number;
+  avg_predicted_team_actual: number | null;  // Avg actual points by our predicted team
+  avg_dream_team_points: number | null;  // Avg dream team points for comparison
   min_overlap: number;
   max_overlap: number;
   weeks_above_9: number;
