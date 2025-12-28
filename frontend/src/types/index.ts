@@ -41,6 +41,7 @@ export interface PredictionPlayer {
   web_name: string;
   position: "GKP" | "DEF" | "MID" | "FWD";
   team_short_name: string | null;
+  team_fpl_id: number | null;
   position_slot: number;
   predicted_points: number;
   predicted_minutes: number | null;
@@ -65,6 +66,7 @@ export interface DreamTeamPlayer {
   web_name: string;
   position: "GKP" | "DEF" | "MID" | "FWD";
   team_short_name: string | null;
+  team_fpl_id: number | null;
   position_slot: number;
   points: number;
 }

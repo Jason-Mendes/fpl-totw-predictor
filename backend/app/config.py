@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
     # Application
     debug: bool = False
-    cors_origins: list[str] = ["http://localhost:3000"]
+    cors_origins: list[str] = ["*"]
 
     # Model settings
     model_version: str = "v1.0.0"

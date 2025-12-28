@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PitchView from "@/components/PitchView";
+import SplitPitchView from "@/components/SplitPitchView";
 import GameweekSelector from "@/components/GameweekSelector";
 import StatsHeader from "@/components/StatsHeader";
 import {
@@ -197,67 +198,77 @@ export default function Home() {
         />
       )}
 
-      {/* View toggle */}
-      <Tabs
-        value={viewMode}
-        onValueChange={(v) => setViewMode(v as "prediction" | "actual")}
-        className="w-full"
-      >
-        <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-          <TabsTrigger value="prediction">Prediction</TabsTrigger>
-          <TabsTrigger value="actual" disabled={!dreamTeam}>
+      {/* Centered View Toggle */}
+      <div className="flex justify-center">
+        <div className="inline-flex bg-fpl-purple-light/50 rounded-full p-1">
+          <button
+            onClick={() => setViewMode("prediction")}
+            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
+              viewMode === "prediction"
+                ? "bg-fpl-green text-fpl-purple"
+                : "text-white hover:text-fpl-green"
+            }`}
+          >
+            Prediction
+          </button>
+          <button
+            onClick={() => setViewMode("actual")}
+            disabled={!dreamTeam}
+            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
+              viewMode === "actual"
+                ? "bg-fpl-green text-fpl-purple"
+                : "text-white hover:text-fpl-green disabled:opacity-50 disabled:cursor-not-allowed"
+            }`}
+          >
             Actual
-          </TabsTrigger>
-        </TabsList>
+          </button>
+        </div>
+      </div>
 
-        <TabsContent value="prediction" className="mt-6">
-          {loading ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">Loading...</p>
-              </CardContent>
-            </Card>
-          ) : prediction ? (
-            <PitchView
-              players={predictionPlayers}
-              isPrediction={true}
-              formation={prediction.formation || "4-4-2"}
-            />
-          ) : (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">
-                  No prediction yet. Click "Generate Prediction" to create one.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
+      {/* Pitch View */}
+      <div className="relative">
+        {/* Loading overlay */}
+        {(loading || generating) && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10 rounded-lg">
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="w-12 h-12 text-fpl-green animate-spin" />
+              <span className="text-white font-medium">
+                {generating ? "Generating prediction..." : "Loading..."}
+              </span>
+            </div>
+          </div>
+        )}
 
-        <TabsContent value="actual" className="mt-6">
-          {loading ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">Loading...</p>
-              </CardContent>
-            </Card>
-          ) : dreamTeam ? (
-            <PitchView
-              players={dreamTeamPlayers}
-              isPrediction={false}
-              formation="4-4-2"
-            />
-          ) : (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">
-                  Dream Team not available for this gameweek.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-      </Tabs>
+        {/* Content */}
+        {prediction && dreamTeam ? (
+          <SplitPitchView
+            predictionPlayers={predictionPlayers}
+            actualPlayers={dreamTeamPlayers}
+            formation={prediction.formation || "4-4-2"}
+            activeView={viewMode}
+          />
+        ) : prediction ? (
+          <PitchView
+            players={predictionPlayers}
+            isPrediction={true}
+            formation={prediction.formation || "4-4-2"}
+          />
+        ) : dreamTeam ? (
+          <PitchView
+            players={dreamTeamPlayers}
+            isPrediction={false}
+            formation="4-4-2"
+          />
+        ) : (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <p className="text-muted-foreground">
+                No prediction yet. Click "Generate Prediction" to create one.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* Comparison stats (if both available) */}
       {prediction && dreamTeam && (

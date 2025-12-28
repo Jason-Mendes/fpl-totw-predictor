@@ -1,16 +1,20 @@
 """Prediction API routes."""
 
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
-from app.models import DreamTeam, Gameweek, Player, Prediction
+from app.models import DreamTeam, Gameweek, Player, Prediction, PredictionPlayer
 from app.schemas import (
     DreamTeamPlayerSchema,
     DreamTeamSchema,
     PredictionPlayerSchema,
     PredictionSchema,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -29,7 +33,7 @@ def get_prediction(gw_id: int, db: Session = Depends(get_db)) -> PredictionSchem
 
     prediction = (
         db.query(Prediction)
-        .options(joinedload(Prediction.players).joinedload("player").joinedload("team"))
+        .options(joinedload(Prediction.players).joinedload(PredictionPlayer.player).joinedload(Player.team))
         .filter(Prediction.gameweek_id == gw.id)
         .order_by(Prediction.created_at.desc())
         .first()
@@ -41,6 +45,8 @@ def get_prediction(gw_id: int, db: Session = Depends(get_db)) -> PredictionSchem
     players = []
     for pp in sorted(prediction.players, key=lambda x: x.position_slot):
         player = pp.player
+        if not player.team:
+            logger.warning(f"Player {player.web_name} (id={player.id}) has no team association")
         players.append(
             PredictionPlayerSchema(
                 player_id=player.id,
@@ -48,6 +54,7 @@ def get_prediction(gw_id: int, db: Session = Depends(get_db)) -> PredictionSchem
                 web_name=player.web_name,
                 position=player.position,
                 team_short_name=player.team.short_name if player.team else None,
+                team_fpl_id=player.team.fpl_id if player.team else None,
                 position_slot=pp.position_slot,
                 predicted_points=float(pp.predicted_points),
                 predicted_minutes=float(pp.predicted_minutes) if pp.predicted_minutes else None,
@@ -95,6 +102,8 @@ def get_dream_team(gw_id: int, db: Session = Depends(get_db)) -> DreamTeamSchema
     total_points = 0
     for dt in dream_team_entries:
         player = dt.player
+        if not player.team:
+            logger.warning(f"Dream Team Player {player.web_name} (id={player.id}) has no team association")
         players.append(
             DreamTeamPlayerSchema(
                 player_id=player.id,
@@ -102,6 +111,7 @@ def get_dream_team(gw_id: int, db: Session = Depends(get_db)) -> DreamTeamSchema
                 web_name=player.web_name,
                 position=player.position,
                 team_short_name=player.team.short_name if player.team else None,
+                team_fpl_id=player.team.fpl_id if player.team else None,
                 position_slot=dt.position_slot,
                 points=dt.points,
             )
@@ -141,7 +151,7 @@ def generate_prediction(gw_id: int, db: Session = Depends(get_db)) -> Prediction
     # Reload with relationships
     prediction = (
         db.query(Prediction)
-        .options(joinedload(Prediction.players).joinedload("player").joinedload("team"))
+        .options(joinedload(Prediction.players).joinedload(PredictionPlayer.player).joinedload(Player.team))
         .filter(Prediction.id == prediction.id)
         .first()
     )
@@ -156,6 +166,7 @@ def generate_prediction(gw_id: int, db: Session = Depends(get_db)) -> Prediction
                 web_name=player.web_name,
                 position=player.position,
                 team_short_name=player.team.short_name if player.team else None,
+                team_fpl_id=player.team.fpl_id if player.team else None,
                 position_slot=pp.position_slot,
                 predicted_points=float(pp.predicted_points),
                 predicted_minutes=float(pp.predicted_minutes) if pp.predicted_minutes else None,

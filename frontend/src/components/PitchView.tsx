@@ -43,6 +43,7 @@ export default function PitchView({
           webName={player.web_name}
           position={position}
           teamShortName={player.team_short_name}
+          teamFplId={player.team_fpl_id}
           points={player.points}
           isPredicted={isPrediction}
           isTopScorer={player.player_id === topScorer?.player_id}

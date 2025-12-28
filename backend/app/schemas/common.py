@@ -116,6 +116,7 @@ class DreamTeamPlayerSchema(BaseModel):
     web_name: str
     position: str
     team_short_name: str | None
+    team_fpl_id: int | None
     position_slot: int
     points: int
 
@@ -143,6 +144,7 @@ class PredictionPlayerSchema(BaseModel):
     web_name: str
     position: str
     team_short_name: str | None
+    team_fpl_id: int | None
     position_slot: int
     predicted_points: float
     predicted_minutes: float | None

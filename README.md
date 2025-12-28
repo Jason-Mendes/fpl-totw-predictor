@@ -163,34 +163,61 @@ Both Python and TypeScript read from `shared/constants.json` to ensure consisten
 
 ## Development
 
-### Local Backend (without Docker)
+### Running Without Docker
+
+You can run each service locally without Docker. You'll still need PostgreSQL running somewhere.
+
+#### 1. Database Setup
+
+Either keep using Docker for just the database:
+```bash
+docker-compose up db
+```
+
+Or install PostgreSQL locally and create the database:
+```bash
+createdb fpl_totw
+```
+
+#### 2. Backend (Python/FastAPI)
 
 ```bash
 cd backend
-python -m venv .venv
-source .venv/bin/activate
+python -m venv venv
+source venv/bin/activate          # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+
+# Set database connection (adjust if using different credentials)
+export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fpl_totw
+
+# Run migrations
+alembic upgrade head
+
+# Start the server
+uvicorn app.main:app --reload --port 8000
 ```
 
-### Local Frontend (without Docker)
+#### 3. Frontend (Next.js/pnpm)
 
 ```bash
 cd frontend
-npm install
-npm run dev
+pnpm install                      # Or: npm install
+pnpm dev                          # Or: npm run dev
 ```
+
+The frontend runs at http://localhost:3000 and connects to the backend at http://localhost:8000.
 
 ### Running Tests
 
 ```bash
 # Backend tests
 cd backend
+source venv/bin/activate
 pytest
 
 # Frontend lint
 cd frontend
-npm run lint
+pnpm lint                         # Or: npm run lint
 ```
 
 ## ML Model Details

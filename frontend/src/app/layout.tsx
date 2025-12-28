@@ -7,6 +7,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "FPL Team of the Week Predictor",
   description: "Predict the FPL Dream Team using machine learning",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
