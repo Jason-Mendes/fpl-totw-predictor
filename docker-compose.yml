@@ -33,6 +33,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - ./shared:/shared
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:
@@ -51,6 +52,7 @@ services:
       - backend
     volumes:
       - ./frontend:/app
+      - ./shared:/shared
       - /app/node_modules
     command: npm run dev
 
